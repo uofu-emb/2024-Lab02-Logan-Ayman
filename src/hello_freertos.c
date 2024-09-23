@@ -13,6 +13,8 @@
 #include "pico/multicore.h"
 #include "pico/cyw43_arch.h"
 
+#include "testable_functions.h"
+
 // TODO: Possibly make this local to blink_task. 
 // At the moment, blink_task is the only function that uses these variables
 int count = 0;
@@ -29,7 +31,7 @@ void blink_task(__unused void *params) {
     // Blink the LED every 500ms after 11 counts
     while (true) {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, on);
-        if (count++ % 11) on = !on;
+        on = check_update_LED(on, &count);
         vTaskDelay(500);
     }
 }
@@ -41,9 +43,7 @@ void main_task(__unused void *params) {
     // Read from the console and print the character back in the inverse case
     char c;
     while(c = getchar()) {
-        if (c <= 'z' && c >= 'a') putchar(c - 32);
-        else if (c >= 'A' && c <= 'Z') putchar(c + 32);
-        else putchar(c);
+        putchar(invert_case(c));
     }
 }
 
